@@ -1,5 +1,22 @@
 const client = require("./client");
 
+const { getUserStoriesByUserId } = require("./userStories");
+const { createSetString } = require("./utils");
+
+async function appendUserStories(user) {
+  try {
+    const userStories = getUserStoriesByUserId(user);
+
+    if (userStories.length < 1) return user;
+
+    user.userStories = userStories;
+
+    return user;
+  } catch (error) {
+    throw error;
+  }
+}
+
 async function createUser({ username, password, email }) {
   try {
     const {
@@ -21,7 +38,7 @@ async function createUser({ username, password, email }) {
 async function getAllUsers() {
   try {
     const { rows: users } = await client.query(`
-            SELECT id, username, email
+            SELECT *
             FROM users;
         `);
     return users;
@@ -30,4 +47,99 @@ async function getAllUsers() {
   }
 }
 
-module.exports = { createUser, getAllUsers };
+async function getUserById({ id }) {
+  try {
+    let {
+      rows: [user],
+    } = await client.query(
+      `
+      SELECT * FROM users
+      WHERE id=$1;
+    `,
+      [id]
+    );
+
+    if (!user) throw error;
+
+    user = appendUserStories(user);
+
+    return user;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function getUserByUsername({ username }) {
+  try {
+    let {
+      rows: [user],
+    } = await client.query(
+      `
+      SELECT * FROM users
+      WHERE username=$1;
+    `,
+      [username]
+    );
+
+    if (!user) throw error;
+
+    user = appendUserStories(user);
+
+    return user;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function updateUser({ id, username, password, email }) {
+  try {
+    let updateFields = {};
+    if (username) updateFields.username = username;
+    if (password) updateFields.password = password;
+    if (email) updateFields.email = email;
+
+    const setString = createSetString(updateFields);
+
+    const {
+      rows: [user],
+    } = await client.query(
+      `
+    UPDATE users
+    SET ${setString}
+    WHERE id=${id}
+    RETURNING *;
+  `,
+      Object.values(updateFields)
+    );
+    return user;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function deleteUser({ id }) {
+  try {
+    const {
+      rows: [user],
+    } = await client.query(
+      `
+      DELETE FROM users
+      WHERE id=$1
+      RETURNING *;
+    `,
+      [id]
+    );
+    return user;
+  } catch (error) {
+    throw error;
+  }
+}
+
+module.exports = {
+  createUser,
+  getAllUsers,
+  getUserById,
+  getUserByUsername,
+  updateUser,
+  deleteUser,
+};
