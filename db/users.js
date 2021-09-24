@@ -5,7 +5,7 @@ const { createSetString } = require("./utils");
 
 async function appendUserStories(user) {
   try {
-    const userStories = getUserStoriesByUserId(user);
+    const userStories = await getUserStoriesByUserId(user);
 
     if (userStories.length < 1) return user;
 
@@ -59,9 +59,9 @@ async function getUserById({ id }) {
       [id]
     );
 
-    if (!user) throw error;
+    if (!user) return null;
 
-    user = appendUserStories(user);
+    user = await appendUserStories(user);
 
     return user;
   } catch (error) {
@@ -81,7 +81,7 @@ async function getUserByUsername({ username }) {
       [username]
     );
 
-    if (!user) throw error;
+    if (!user) return null;
 
     user = appendUserStories(user);
 

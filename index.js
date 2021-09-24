@@ -12,19 +12,19 @@ server.use(express.json());
 const path = require("path");
 server.use(express.static(path.join(__dirname, "build")));
 
+const dotenv = require("dotenv");
+dotenv.config();
+
 server.use("/api", require("./routes"));
 
 server.use((req, res, next) => {
   res.sendFile(path.join(__dirname, "build", "index.html"));
 });
 
-const dotenv = require("dotenv");
-dotenv.config();
-
 const client = require("./db/client");
 
-server.use((err, req, res, next) => {
-  res.status(500).send(err);
+server.use((error, req, res, next) => {
+  res.status(500).send(error);
 });
 
 const PORT = process.env.PORT || 5000;
