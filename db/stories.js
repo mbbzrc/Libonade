@@ -15,6 +15,7 @@ async function createStory({ title, content, category, players }) {
     `,
       [title, content, category, players]
     );
+
     return story;
   } catch (error) {
     throw error;
