@@ -53,15 +53,13 @@ async function getUserById({ id }) {
       rows: [user],
     } = await client.query(
       `
-      SELECT * FROM users
+      SELECT id, username, email FROM users
       WHERE id=$1;
     `,
       [id]
     );
 
     if (!user) return null;
-
-    user = await appendUserStories(user);
 
     return user;
   } catch (error) {
@@ -125,7 +123,7 @@ async function deleteUser({ id }) {
       `
       DELETE FROM users
       WHERE id=$1
-      RETURNING *;
+      RETURNING id, username, email;
     `,
       [id]
     );

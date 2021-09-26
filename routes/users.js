@@ -5,7 +5,12 @@ const { JWT_SECRET } = process.env;
 
 const { hash, genSalt, compare } = require("bcrypt");
 
-const { createUser, getUserByUsername } = require("../db");
+const {
+  createUser,
+  getUserByUsername,
+  updateUser,
+  deleteUser,
+} = require("../db");
 const { requireUser } = require("./utils");
 
 usersRouter.post("/register", async (req, res, next) => {
@@ -101,6 +106,44 @@ usersRouter.get("/account", requireUser, async (req, res, next) => {
     }
 
     res.send({ user });
+  } catch (error) {
+    next(error);
+  }
+});
+
+usersRouter.patch("/account", requireUser, async (req, res, next) => {
+  try {
+    const { id } = req.user;
+    const { username, password, email } = req.body;
+    let updateFields = { id };
+    if (username) updateFields.username = username;
+    if (email) updateFields.email = email;
+    if (password) {
+      const salt = await genSalt();
+      const hashedPassword = await hash(password, salt);
+      updateFields.password = hashedPassword;
+    }
+
+    const updatedUser = await updateUser(updateFields);
+
+    const updated = Object.keys(updateFields);
+    updated.shift();
+
+    res.send({
+      message: `Successfully updated: ${updated.join(", ")}`,
+      updatedUser,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+usersRouter.delete("/account", requireUser, async (req, res, next) => {
+  try {
+    const { id } = req.user;
+    const deletedUser = await deleteUser({ id });
+
+    res.send({ message: "Account successfully deleted.", deletedUser });
   } catch (error) {
     next(error);
   }
