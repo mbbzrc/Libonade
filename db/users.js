@@ -17,17 +17,17 @@ async function appendUserStories(user) {
   }
 }
 
-async function createUser({ username, password, email }) {
+async function createUser({ username, password, email, isAdmin }) {
   try {
     const {
       rows: [user],
     } = await client.query(
       `
-            INSERT INTO users(username, password, email)
-            VALUES ($1, $2, $3)
+            INSERT INTO users(username, password, email, "isAdmin")
+            VALUES ($1, $2, $3, $4)
             RETURNING id, username, email;
         `,
-      [username, password, email]
+      [username, password, email, isAdmin]
     );
     return user;
   } catch (error) {
@@ -38,7 +38,7 @@ async function createUser({ username, password, email }) {
 async function getAllUsers() {
   try {
     const { rows: users } = await client.query(`
-            SELECT *
+            SELECT id, username, email, "isAdmin"
             FROM users;
         `);
     return users;
@@ -53,7 +53,7 @@ async function getUserById({ id }) {
       rows: [user],
     } = await client.query(
       `
-      SELECT id, username, email FROM users
+      SELECT id, username, email, "isAdmin" FROM users
       WHERE id=$1;
     `,
       [id]
@@ -89,12 +89,13 @@ async function getUserByUsername({ username }) {
   }
 }
 
-async function updateUser({ id, username, password, email }) {
+async function updateUser({ id, username, password, email, isAdmin }) {
   try {
     let updateFields = {};
     if (username) updateFields.username = username;
     if (password) updateFields.password = password;
     if (email) updateFields.email = email;
+    if (isAdmin) updateFields.isAdmin = isAdmin;
 
     const setString = createSetString(updateFields);
 

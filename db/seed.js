@@ -1,5 +1,7 @@
 const client = require("./client");
 
+const { hash, genSalt } = require("bcrypt");
+
 const { createStory, getAllStories } = require("./stories");
 const { createQuestion, getAllQuestions } = require("./questions");
 const { createWord, getAllWords } = require("./words");
@@ -48,7 +50,8 @@ async function buildTables() {
             id SERIAL PRIMARY KEY,
             username VARCHAR(255) UNIQUE NOT NULL,
             password VARCHAR(255) NOT NULL,
-            email VARCHAR(255) UNIQUE NOT NULL
+            email VARCHAR(255) UNIQUE NOT NULL,
+            "isAdmin" BOOLEAN NOT NULL DEFAULT FALSE
         );
         CREATE TABLE user_stories(
             id SERIAL PRIMARY KEY,
@@ -151,19 +154,29 @@ async function createInitialUsers() {
   const initialUsers = [
     {
       username: "beesley90",
-      password: "password123",
+      password: "Password123$",
       email: "anthony@hotmail.com",
+      isAdmin: true,
     },
     {
-      username: "metamax82",
-      password: "password123",
-      email: "max@hotmail.com",
+      username: "bob21",
+      password: "Password123$",
+      email: "bob@yahoo.com",
+      isAdmin: false,
+    },
+    {
+      username: "dana99",
+      password: "Password123$",
+      email: "dana@gmail.com",
+      isAdmin: false,
     },
   ];
   try {
     await Promise.all(
-      initialUsers.map((user) => {
-        createUser(user);
+      initialUsers.map(async ({ username, password, email, isAdmin }) => {
+        const salt = await genSalt();
+        const hashedPassword = await hash(password, salt);
+        createUser({ username, password: hashedPassword, email, isAdmin });
       })
     );
     console.log("Finished seeding initial users.");

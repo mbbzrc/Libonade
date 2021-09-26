@@ -10,12 +10,13 @@ const {
   getUserByUsername,
   updateUser,
   deleteUser,
+  getAllUsers,
 } = require("../db");
-const { requireUser } = require("./utils");
+const { requireUser, requireAdmin } = require("./utils");
 
 usersRouter.post("/register", async (req, res, next) => {
   try {
-    const { username, password, email } = req.body;
+    const { username, password, email, isAdmin = false } = req.body;
 
     const _user = await getUserByUsername({ username });
     if (_user) {
@@ -41,6 +42,7 @@ usersRouter.post("/register", async (req, res, next) => {
       username,
       password: hashedPassword,
       email,
+      isAdmin,
     });
 
     const token = sign(
@@ -114,10 +116,11 @@ usersRouter.get("/account", requireUser, async (req, res, next) => {
 usersRouter.patch("/account", requireUser, async (req, res, next) => {
   try {
     const { id } = req.user;
-    const { username, password, email } = req.body;
+    const { username, password, email, isAdmin } = req.body;
     let updateFields = { id };
     if (username) updateFields.username = username;
     if (email) updateFields.email = email;
+    if (isAdmin) updateFields.isAdmin = isAdmin;
     if (password) {
       const salt = await genSalt();
       const hashedPassword = await hash(password, salt);
@@ -130,7 +133,7 @@ usersRouter.patch("/account", requireUser, async (req, res, next) => {
     updated.shift();
 
     res.send({
-      message: `Successfully updated: ${updated.join(", ")}`,
+      message: `Successfully updated: ${updated.join(", ")}.`,
       updatedUser,
     });
   } catch (error) {
@@ -144,6 +147,77 @@ usersRouter.delete("/account", requireUser, async (req, res, next) => {
     const deletedUser = await deleteUser({ id });
 
     res.send({ message: "Account successfully deleted.", deletedUser });
+  } catch (error) {
+    next(error);
+  }
+});
+
+usersRouter.get("/admin/all", requireAdmin, async (req, res, next) => {
+  try {
+    const users = await getAllUsers();
+
+    res.send(users);
+  } catch (error) {
+    next(error);
+  }
+});
+
+usersRouter.get("/admin/:username", requireAdmin, async (req, res, next) => {
+  try {
+    const { username } = req.params;
+
+    const user = await getUserByUsername({ username });
+    delete user.password;
+
+    if (!user) {
+      return next({
+        name: "NoUserAdminError",
+        message: "No user registered with this username.",
+      });
+    }
+
+    res.send(user);
+  } catch (error) {
+    next(error);
+  }
+});
+
+usersRouter.patch("/admin", requireAdmin, async (req, res, next) => {
+  try {
+    const { id, username, password, email, isAdmin } = req.body;
+    let updateFields = { id };
+    if (username) updateFields.username = username;
+    if (email) updateFields.email = email;
+    if (isAdmin) updateFields.isAdmin = isAdmin;
+    if (password) {
+      const salt = await genSalt();
+      const hashedPassword = await hash(password, salt);
+      updateFields.password = hashedPassword;
+    }
+
+    const updatedUser = await updateUser(updateFields);
+
+    const updated = Object.keys(updateFields);
+    updated.shift();
+
+    res.send({
+      message: `Successfully updated user ${username}'s ${updated.join(", ")}.`,
+      updatedUser,
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+usersRouter.delete("/admin", requireAdmin, async (req, res, next) => {
+  try {
+    const { id } = req.body;
+    const deletedUser = await deleteUser({ id });
+
+    res.send({
+      message: `User ${deletedUser["username"]}'s account has been successfully deleted.`,
+      deletedUser,
+    });
   } catch (error) {
     next(error);
   }
