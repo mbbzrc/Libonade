@@ -215,12 +215,12 @@ usersRouter.patch("/admin", requireAdmin, async (req, res, next) => {
 usersRouter.delete("/admin", requireAdmin, async (req, res, next) => {
   try {
     const { id } = req.body;
-    const deletedUserStories = await deleteAllUserStories({ userId: id });
-    const deletedUser = await deleteUser({ id });
-    deletedUser.userStories = deletedUserStories;
+    const userStories = await deleteAllUserStories({ userId: id });
+    const user = await deleteUser({ id });
+    user.userStories = userStories;
 
     res.send({
-      message: `User ${deletedUser["username"]}'s account has been successfully deleted.`,
+      message: `User ${user["username"]}'s account has been successfully deleted.`,
       deletedUser,
     });
   } catch (error) {

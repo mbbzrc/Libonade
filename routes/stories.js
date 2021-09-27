@@ -51,6 +51,13 @@ storiesRouter.delete("/admin", requireAdmin, async (req, res, next) => {
     const { id } = req.body;
     const story = await deleteStory({ id });
 
+    if (!story) {
+      return next({
+        name: "DeleteStoryError",
+        message: "Unable to locate story for deletion.",
+      });
+    }
+
     res.send({ message: "Story successfully deleted.", story });
   } catch (error) {
     next(error);

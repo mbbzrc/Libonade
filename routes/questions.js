@@ -2,7 +2,12 @@ const questionsRouter = require("express").Router();
 
 const { requireAdmin } = require("./utils");
 
-const { createQuestion, updateQuestion } = require("../db");
+const {
+  createQuestion,
+  updateQuestion,
+  deleteQuestion,
+  getAllQuestions,
+} = require("../db");
 
 questionsRouter.post("/", requireAdmin, async (req, res, next) => {
   try {
@@ -39,7 +44,35 @@ questionsRouter.patch("/", requireAdmin, async (req, res, next) => {
   }
 });
 
-// questionsRouter.post("/", async (req, res, next) => {
+questionsRouter.delete("/:id", requireAdmin, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const question = await deleteQuestion({ id });
+
+    if (!question) {
+      return next({
+        name: "DeleteQuestionError",
+        message: "Unable to locate question for deletion.",
+      });
+    }
+
+    res.send({ message: "Question successfully deleted.", question });
+  } catch (error) {
+    next(error);
+  }
+});
+
+questionsRouter.get("/", requireAdmin, async (req, res, next) => {
+  try {
+    const questions = await getAllQuestions();
+
+    res.send(questions);
+  } catch (error) {
+    next(error);
+  }
+});
+
+// questionsRouter.post("/", requireAdmin, async (req, res, next) => {
 //     try {
 //         const question = await
 //     } catch (error) {
@@ -47,10 +80,7 @@ questionsRouter.patch("/", requireAdmin, async (req, res, next) => {
 //     }
 // })
 
-// updateQuestion**
-// deleteQuestion**
-// getAllQuestions**
 // getQuestionById**
-// getQuestionByTypeCatForm
+// getQuestionsByTypeCatForm
 
 module.exports = questionsRouter;
