@@ -11,6 +11,7 @@ const {
   updateUser,
   deleteUser,
   getAllUsers,
+  deleteAllUserStories,
 } = require("../db");
 const { requireUser, requireAdmin } = require("./utils");
 
@@ -144,7 +145,9 @@ usersRouter.patch("/account", requireUser, async (req, res, next) => {
 usersRouter.delete("/account", requireUser, async (req, res, next) => {
   try {
     const { id } = req.user;
+    const deletedUserStories = await deleteAllUserStories({ userId: id });
     const deletedUser = await deleteUser({ id });
+    deletedUser.userStories = deletedUserStories;
 
     res.send({ message: "Account successfully deleted.", deletedUser });
   } catch (error) {
@@ -212,7 +215,9 @@ usersRouter.patch("/admin", requireAdmin, async (req, res, next) => {
 usersRouter.delete("/admin", requireAdmin, async (req, res, next) => {
   try {
     const { id } = req.body;
+    const deletedUserStories = await deleteAllUserStories({ userId: id });
     const deletedUser = await deleteUser({ id });
+    deletedUser.userStories = deletedUserStories;
 
     res.send({
       message: `User ${deletedUser["username"]}'s account has been successfully deleted.`,

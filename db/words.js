@@ -2,17 +2,17 @@ const client = require("./client");
 
 const { createSetString } = require("./utils");
 
-async function createWord({ content, type, form }) {
+async function createWord({ content, type, category, form }) {
   try {
     const {
       rows: [word],
     } = await client.query(
       `
-            INSERT INTO words(content, type, form)
-            VALUES ($1, $2, $3)
+            INSERT INTO words(content, type, category, form)
+            VALUES ($1, $2, $3, $4)
             RETURNING *;
         `,
-      [content, type, form]
+      [content, type, category, form]
     );
     return word;
   } catch (error) {
@@ -48,9 +48,10 @@ async function getWordById({ id }) {
   }
 }
 
-async function getWordsByTypeAndForm({ type, form }) {
+async function getWordsByTypeCatForm({ type, category, form }) {
   let searchFields = {};
   if (type) searchFields.type = type;
+  if (category) searchFields.category = category;
   if (form) searchFields.form = form;
 
   const whereString = Object.keys(searchFields)
@@ -73,11 +74,12 @@ async function getWordsByTypeAndForm({ type, form }) {
   }
 }
 
-async function updateWord({ id, content, type, form }) {
+async function updateWord({ id, content, type, category, form }) {
   try {
     let updateFields = {};
     if (content) updateFields.content = content;
     if (type) updateFields.type = type;
+    if (category) updateFields.category = category;
     if (form) updateFields.form = form;
 
     const setString = createSetString(updateFields);
@@ -121,7 +123,7 @@ module.exports = {
   createWord,
   getAllWords,
   getWordById,
-  getWordsByTypeAndForm,
+  getWordsByTypeCatForm,
   updateWord,
   deleteWord,
 };

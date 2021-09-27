@@ -43,12 +43,12 @@ apiRouter.get("/health", async (req, res, next) => {
 
 apiRouter.use("/stories", require("./stories"));
 
-// apiRouter.use("/questions", require("./questions"));
+apiRouter.use("/questions", require("./questions"));
 
 // apiRouter.use("/words", require("./words"));
 
 apiRouter.use("/users", require("./users"));
 
-// apiRouter.use("/userStories", require("./userStories"));
+apiRouter.use("/user-stories", require("./userStories"));
 
 module.exports = apiRouter;

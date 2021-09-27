@@ -38,13 +38,15 @@ async function buildTables() {
             id SERIAL PRIMARY KEY,
             content VARCHAR(255) UNIQUE NOT NULL,
             type VARCHAR(255) NOT NULL,
-            form VARCHAR(255)
+            category VARCHAR(255) NOT NULL,
+            form VARCHAR(255) NOT NULL
         );
         CREATE TABLE words(
             id SERIAL PRIMARY KEY,
             content VARCHAR(255) UNIQUE NOT NULL,
             type VARCHAR(255) NOT NULL,
-            form VARCHAR(255)
+            category VARCHAR(255) NOT NULL,
+            form VARCHAR(255) NOT NULL
         );
         CREATE TABLE users(
             id SERIAL PRIMARY KEY,
@@ -55,10 +57,10 @@ async function buildTables() {
         );
         CREATE TABLE user_stories(
             id SERIAL PRIMARY KEY,
-            "userId" INTEGER REFERENCES users,
-            title VARCHAR(255) REFERENCES stories (title),
+            "userId" INTEGER NOT NULL REFERENCES users,
+            title VARCHAR(255) NOT NULL REFERENCES stories (title),
             content TEXT NOT NULL,
-            date DATE DEFAULT CURRENT_DATE
+            date DATE NOT NULL DEFAULT CURRENT_DATE
         );
     `);
     console.log("Finished building tables.");
@@ -102,13 +104,15 @@ async function createInitialQuestions() {
   const initialQuestions = [
     {
       content: "What is the most disgusting vegetable on earth?",
-      type: "common noun",
+      type: "noun-common",
+      category: "food",
       form: "singular",
     },
     {
       content: "What is the first name of your favorite aunt?",
-      type: "proper noun",
-      form: null,
+      type: "noun-proper",
+      category: "person",
+      form: "singular",
     },
   ];
   try {
@@ -128,13 +132,15 @@ async function createInitialWords() {
   const initialWords = [
     {
       content: "horse",
-      type: "common noun",
+      type: "noun-common",
+      category: "animal",
       form: "singular",
     },
     {
       content: "Nicki Minaj",
-      type: "proper noun",
-      form: null,
+      type: "noun-proper",
+      category: "person",
+      form: "singular",
     },
   ];
   try {

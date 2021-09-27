@@ -18,16 +18,16 @@ async function createUserStory({ userId, title, content }) {
   }
 }
 
-async function getUserStoryById({ id }) {
+async function getUserStoryById({ id, userId }) {
   try {
     const {
       rows: [userStory],
     } = await client.query(
       `
             SELECT * FROM user_stories
-            WHERE id=$1;
+            WHERE id=$1 AND "userId"=$2;
         `,
-      [id]
+      [id, userId]
     );
     return userStory;
   } catch (error) {
@@ -50,19 +50,35 @@ async function getUserStoriesByUserId({ userId }) {
   }
 }
 
-async function deleteUserStory({ id }) {
+async function deleteUserStory({ id, userId }) {
   try {
     const {
       rows: [userStory],
     } = await client.query(
       `
             DELETE FROM user_stories
-            WHERE id=$1
+            WHERE id=$1 AND "userId"=$2
             RETURNING *;
         `,
-      [id]
+      [id, userId]
     );
     return userStory;
+  } catch (error) {
+    throw error;
+  }
+}
+
+async function deleteAllUserStories({ userId }) {
+  try {
+    const { rows: userStories } = await client.query(
+      `
+      DELETE FROM user_stories
+      WHERE "userId"=$1
+      RETURNING *;
+    `,
+      [userId]
+    );
+    return userStories;
   } catch (error) {
     throw error;
   }
@@ -73,4 +89,5 @@ module.exports = {
   getUserStoryById,
   getUserStoriesByUserId,
   deleteUserStory,
+  deleteAllUserStories,
 };

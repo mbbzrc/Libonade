@@ -6,6 +6,8 @@ const {
   getStoryById,
   updateStory,
   deleteStory,
+  getStoriesByCategory,
+  getStoriesByPlayers,
 } = require("../db/stories");
 const { requireAdmin } = require("./utils");
 
@@ -83,6 +85,26 @@ storiesRouter.get("/:id", async (req, res, next) => {
   }
 });
 
-// getStoriesByCategory
+storiesRouter.get("/category/:category", async (req, res, next) => {
+  try {
+    const { category } = req.params;
+    const stories = await getStoriesByCategory({ category });
+
+    res.send(stories);
+  } catch (error) {
+    next(error);
+  }
+});
+
+storiesRouter.get("/players/:players", async (req, res, next) => {
+  try {
+    const { players } = req.params;
+    const stories = await getStoriesByPlayers({ players });
+
+    res.send(stories);
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = storiesRouter;

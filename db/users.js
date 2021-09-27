@@ -5,7 +5,8 @@ const { createSetString } = require("./utils");
 
 async function appendUserStories(user) {
   try {
-    const userStories = await getUserStoriesByUserId(user);
+    const { id: userId } = user;
+    const userStories = await getUserStoriesByUserId({ userId });
 
     if (userStories.length < 1) return user;
 

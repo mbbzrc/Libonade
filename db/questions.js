@@ -2,17 +2,17 @@ const client = require("./client");
 
 const { createSetString } = require("./utils");
 
-async function createQuestion({ content, type, form }) {
+async function createQuestion({ content, type, category, form }) {
   try {
     const {
       rows: [question],
     } = await client.query(
       `
-            INSERT INTO questions(content, type, form)
-            VALUES ($1, $2, $3)
+            INSERT INTO questions(content, type, category, form)
+            VALUES ($1, $2, $3, $4)
             RETURNING *;
         `,
-      [content, type, form]
+      [content, type, category, form]
     );
     return question;
   } catch (error) {
@@ -48,9 +48,10 @@ async function getQuestionById({ id }) {
   }
 }
 
-async function getQuestionsByTypeAndForm({ type, form }) {
+async function getQuestionsByTypeCatForm({ type, category, form }) {
   let searchFields = {};
   if (type) searchFields.type = type;
+  if (category) searchFields.category = category;
   if (form) searchFields.form = form;
 
   const whereString = Object.keys(searchFields)
@@ -73,11 +74,12 @@ async function getQuestionsByTypeAndForm({ type, form }) {
   }
 }
 
-async function updateQuestion({ id, content, type, form }) {
+async function updateQuestion({ id, content, type, category, form }) {
   try {
     let updateFields = {};
     if (content) updateFields.content = content;
     if (type) updateFields.type = type;
+    if (category) updateFields.category = category;
     if (form) updateFields.form = form;
 
     const setString = createSetString(updateFields);
@@ -120,7 +122,7 @@ module.exports = {
   createQuestion,
   getAllQuestions,
   getQuestionById,
-  getQuestionsByTypeAndForm,
+  getQuestionsByTypeCatForm,
   updateQuestion,
   deleteQuestion,
 };
