@@ -55,9 +55,7 @@ async function getWordsByTypeCatForm({ type, category, form }) {
   if (form) searchFields.form = form;
 
   const whereString = Object.keys(searchFields)
-    .map((key, index) => {
-      `"${key}"=$${index + 1}`;
-    })
+    .map((key, index) => `"${key}"=$${index + 1}`)
     .join(" AND ");
 
   try {

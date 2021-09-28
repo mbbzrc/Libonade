@@ -45,7 +45,7 @@ apiRouter.use("/stories", require("./stories"));
 
 apiRouter.use("/questions", require("./questions"));
 
-// apiRouter.use("/words", require("./words"));
+apiRouter.use("/words", require("./words"));
 
 apiRouter.use("/users", require("./users"));
 

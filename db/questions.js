@@ -55,11 +55,9 @@ async function getQuestionsByTypeCatForm({ type, category, form }) {
   if (form) searchFields.form = form;
 
   const whereString = Object.keys(searchFields)
-    .map((key, index) => {
-      `"${key}"=$${index + 1}`;
-    })
+    .map((key, index) => `"${key}"=$${index + 1}`)
     .join(" AND ");
-
+  console.log("WHERE STRING => ", whereString);
   try {
     const { rows: questions } = await client.query(
       `

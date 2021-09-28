@@ -7,9 +7,11 @@ const {
   updateQuestion,
   deleteQuestion,
   getAllQuestions,
+  getQuestionById,
+  getQuestionsByTypeCatForm,
 } = require("../db");
 
-questionsRouter.post("/", requireAdmin, async (req, res, next) => {
+questionsRouter.post("/admin", requireAdmin, async (req, res, next) => {
   try {
     const { content, type, category, form } = req.body;
     const question = await createQuestion({ content, type, category, form });
@@ -20,7 +22,7 @@ questionsRouter.post("/", requireAdmin, async (req, res, next) => {
   }
 });
 
-questionsRouter.patch("/", requireAdmin, async (req, res, next) => {
+questionsRouter.patch("/admin", requireAdmin, async (req, res, next) => {
   try {
     const { id, content, type, category, form } = req.body;
     const question = await updateQuestion({
@@ -44,7 +46,7 @@ questionsRouter.patch("/", requireAdmin, async (req, res, next) => {
   }
 });
 
-questionsRouter.delete("/:id", requireAdmin, async (req, res, next) => {
+questionsRouter.delete("/admin/:id", requireAdmin, async (req, res, next) => {
   try {
     const { id } = req.params;
     const question = await deleteQuestion({ id });
@@ -62,7 +64,7 @@ questionsRouter.delete("/:id", requireAdmin, async (req, res, next) => {
   }
 });
 
-questionsRouter.get("/", requireAdmin, async (req, res, next) => {
+questionsRouter.get("/admin", requireAdmin, async (req, res, next) => {
   try {
     const questions = await getAllQuestions();
 
@@ -72,15 +74,42 @@ questionsRouter.get("/", requireAdmin, async (req, res, next) => {
   }
 });
 
-// questionsRouter.post("/", requireAdmin, async (req, res, next) => {
-//     try {
-//         const question = await
-//     } catch (error) {
-//         next(error)
-//     }
-// })
+questionsRouter.get("/admin/:id", requireAdmin, async (req, res, next) => {
+  try {
+    const { id } = req.params;
+    const question = await getQuestionById({ id });
 
-// getQuestionById**
-// getQuestionsByTypeCatForm
+    if (!question) {
+      return next({
+        name: "QuestionNotFoundError",
+        message: "This question does not exist in the database.",
+      });
+    }
+
+    res.send(question);
+  } catch (error) {
+    next(error);
+  }
+});
+
+questionsRouter.get("/", async (req, res, next) => {
+  try {
+    const { type, category, form } = req.body;
+    let searchFields = {};
+    if (type) searchFields.type = type;
+    if (category) searchFields.category = category;
+    if (form) searchFields.form = form;
+
+    const questions = await getQuestionsByTypeCatForm(searchFields);
+
+    if (questions.length < 1) {
+      return res.send({ message: "No questions available!" });
+    }
+
+    res.send(questions);
+  } catch (error) {
+    next(error);
+  }
+});
 
 module.exports = questionsRouter;
