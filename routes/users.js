@@ -124,6 +124,15 @@ usersRouter.patch("/account", requireUser, async (req, res, next) => {
     if (email) updateFields.email = email;
     if (isAdmin) updateFields.isAdmin = isAdmin;
     if (password) {
+      const passwordRegExp = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/;
+      if (password.search(passwordRegExp) === -1) {
+        return next({
+          name: "InvalidPasswordError",
+          message:
+            "Invalid password. Password must be at least 8 characters in length and contain at least one number, one uppercase, and one lowercase letter.",
+        });
+      }
+
       const salt = await genSalt();
       const hashedPassword = await hash(password, salt);
       updateFields.password = hashedPassword;
@@ -194,6 +203,15 @@ usersRouter.patch("/admin", requireAdmin, async (req, res, next) => {
     if (email) updateFields.email = email;
     if (isAdmin) updateFields.isAdmin = isAdmin;
     if (password) {
+      const passwordRegExp = /(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{8,}/;
+      if (password.search(passwordRegExp) === -1) {
+        return next({
+          name: "InvalidPasswordError",
+          message:
+            "Invalid password. Password must be at least 8 characters in length and contain at least one number, one uppercase, and one lowercase letter.",
+        });
+      }
+
       const salt = await genSalt();
       const hashedPassword = await hash(password, salt);
       updateFields.password = hashedPassword;

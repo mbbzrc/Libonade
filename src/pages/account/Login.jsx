@@ -6,7 +6,7 @@ import { loginUser } from "../../api";
 
 import { useSetUser } from "../../hooks";
 
-import { LocalError } from "../../components/LocalError";
+import { LocalError } from "../../components";
 
 export const Login = ({ form, setForm, handleFormChange }) => {
   const [error, setError] = useState(null);

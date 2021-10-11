@@ -1,21 +1,19 @@
 import React from "react";
 
-import { useUser, useSetUser } from "../../hooks";
+import { Link } from "react-router-dom";
+
+import { useUser } from "../../hooks";
 
 export const User = () => {
   const { username, email } = useUser();
-  const setUser = useSetUser();
-
-  const handleClick = () => {
-    localStorage.clear();
-    setUser(null);
-  };
 
   return (
     <div>
-      <button onClick={handleClick}>Log Out</button>
-      <h2>{username}</h2>
-      <p>{email}</p>
+      <div className="user-details">
+        <h2>{username}</h2>
+        <p>{email}</p>
+      </div>
+      <Link to="/account/update">Manage my account</Link>
       <h3>Saved Libonades</h3>
       {/* // map saved libonades here */}
     </div>

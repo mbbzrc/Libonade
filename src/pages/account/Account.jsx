@@ -2,21 +2,14 @@ import React, { useState } from "react";
 
 import { Switch, Route } from "react-router-dom";
 
-import { Portal, Login, Register, User } from "./index";
+import { Portal, Login, Register, User, Update } from "./index";
 
 import { useUser } from "../../hooks";
-
-//
-import { log } from "../../api";
-//
 
 export const Account = () => {
   const [form, setForm] = useState({ username: "", password: "", email: "" });
 
   const user = useUser();
-  //
-  log("user", user);
-  //
 
   const handleFormChange = (e) => {
     setForm({ ...form, [e.target.name]: e.target.value });
@@ -42,6 +35,13 @@ export const Account = () => {
           />
         </Route>
       )}
+      <Route path="/account/update">
+        <Update
+          form={form}
+          setForm={setForm}
+          handleFormChange={handleFormChange}
+        />
+      </Route>
       <Route path="/account">
         {user ? (
           <>

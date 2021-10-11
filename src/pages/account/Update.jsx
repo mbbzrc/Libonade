@@ -2,37 +2,40 @@ import React, { useState, useEffect } from "react";
 
 import { useHistory } from "react-router-dom";
 
-import { registerUser } from "../../api";
-
-import { useSetUser } from "../../hooks";
-
 import { LocalError } from "../../components";
 
-export const Register = ({ form, setForm, handleFormChange }) => {
+import { useUser, useSetUser } from "../../hooks";
+
+import { updateUser } from "../../api";
+
+export const Update = ({ form, setForm, handleFormChange }) => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
     return setForm({ username: "", password: "", email: "" });
   }, []);
 
+  const { username, email } = useUser();
   const setUser = useSetUser();
 
   const history = useHistory();
 
   const checkForm = () => {
-    if (form.username.length < 1) return false;
-    if (form.password.length < 1) return false;
-    if (form.email.length < 1) return false;
+    if (!form.username && !form.password && !form.email) return false;
     return true;
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      if (!checkForm()) throw new Error("Please complete all fields!");
-      const newUser = await registerUser(form);
-      setUser(newUser);
+      if (!checkForm()) {
+        throw new Error("Please enter something to update!");
+      }
+      const updatedUser = await updateUser(form);
       history.push("/account");
+      setUser(updatedUser);
+
+      // toast to confirm successful update
     } catch (error) {
       if (error.response) {
         setError(error.response.data.message);
@@ -43,21 +46,24 @@ export const Register = ({ form, setForm, handleFormChange }) => {
     }
   };
 
-  // https://paladini.dev/posts/how-to-make-an-extremely-reusable-tooltip-component-with-react--and-nothing-else/
-
   return (
-    <>
-      <h2>create an account</h2>
+    <div>
+      <h2>Update account details</h2>
+      <div className="user-details">
+        <h3>username: {username}</h3>
+        <h3>email: {email}</h3>
+      </div>
       <form>
         <label htmlFor="username">
           <span>
-            username <span className="material-icons">help_outline</span>
+            username
+            <span className="material-icons">help_outline</span>
           </span>
           <input
             id="username"
             type="text"
             name="username"
-            placeholder="enter a username"
+            placeholder="enter new username"
             value={form.username}
             onChange={handleFormChange}
           />
@@ -70,7 +76,7 @@ export const Register = ({ form, setForm, handleFormChange }) => {
             id="password"
             type="password"
             name="password"
-            placeholder="enter a password"
+            placeholder="enter new password"
             value={form.password}
             onChange={handleFormChange}
           />
@@ -81,14 +87,14 @@ export const Register = ({ form, setForm, handleFormChange }) => {
             id="email"
             type="email"
             name="email"
-            placeholder="enter an email address"
+            placeholder="enter new email address"
             value={form.email}
             onChange={handleFormChange}
           />
         </label>
-        <input type="submit" onClick={handleSubmit} />
+        <input type="submit" value="Update" onClick={handleSubmit} />
       </form>
       {error && <LocalError message={error} />}
-    </>
+    </div>
   );
 };
