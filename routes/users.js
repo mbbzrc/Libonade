@@ -56,6 +56,7 @@ usersRouter.post("/register", async (req, res, next) => {
 
     res.send({ message: "Your account has been created!", user, token });
   } catch (error) {
+    console.error(error);
     next(error);
   }
 });
