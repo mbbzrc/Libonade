@@ -1,7 +1,11 @@
 import React from "react";
 import { Link } from "react-router-dom";
 
-export const Home = () => {
+export const Home = ({ setPlayers }) => {
+  const handleNewGame = (number) => {
+    setPlayers(number);
+  };
+
   return (
     <>
       <h1>Home Page</h1>
@@ -9,10 +13,10 @@ export const Home = () => {
         <div>Account</div>
       </Link>
       <Link to="/game">
-        <div>Single Player</div>
+        <div onClick={() => handleNewGame(1)}>Single Player</div>
       </Link>
       <Link to="/game">
-        <div>Pass &amp; Play</div>
+        <div onClick={() => handleNewGame(2)}>Pass &amp; Play</div>
       </Link>
     </>
   );
